@@ -12,7 +12,7 @@ jobs:
             pkgarch: mips_24kc
             target: ath79
             subtarget: nand
-            vermagic: "ba16238a7a163b7e7c5402245d60bef1-r1"
+            vermagic: "ba16238a7a163b7e7c5402245d60bef1"
     steps:
       - uses: actions/checkout@v4
         with:
