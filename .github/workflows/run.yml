@@ -101,11 +101,22 @@ jobs:
           tag_name=${{  github.ref_name }}
           mkdir -p awgrelease
           postfix="${tag_name}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
-          cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
-          cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-app-amneziawg_*.ipk awgrelease/luci-app-amneziawg_${postfix}.ipk
-          cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
+          # не падать, если какой-то файл отсутствует
+          shopt -s nullglob
+          for f in bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk; do
+            cp "$f" "awgrelease/amneziawg-tools_${postfix}.ipk"
+          done
+          for f in bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-app-amneziawg_*.ipk; do
+            cp "$f" "awgrelease/luci-app-amneziawg_${postfix}.ipk"
+          done
+          for f in bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk; do
+            cp "$f" "awgrelease/kmod-amneziawg_${postfix}.ipk"
+          done
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          files: awgrelease/*.ipk
+          name: ipk-v${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+          path: awgrelease
+          retention-days: 30
+          if-no-files-found: warn
